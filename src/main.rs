@@ -1,15 +1,24 @@
 use bevy::prelude::*;
 
+const MAX_FPS: f64 = 120.0;
+const MIN_PERIOD: f32 = 1.0 / MAX_FPS as f32;
+
 const PARTICLE_SIZE: f32 = 2.0;
-const PARTICLE_SPEED: f32 = 4.0;
-const TOTAL_PARTICLES: i32 = 100;
-const STAGGER_DELAY_SCS: f32 = 0.1;
+const PARTICLE_SPEED: f32 = 1.0;
+const TOTAL_PARTICLES: i32 = 300;
+const FREQUENCY: f32 = 100.0;
+const PERIOD: f32 = 1.0 / FREQUENCY;
+const AMPLITUDE: f32 = 100.0;
 
 fn main() {
     App::new()
+        .insert_resource(Time::<Fixed>::from_hz(MAX_FPS))
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
-        .add_systems(Update, (advance_all_start_timers, move_particle).chain())
+        .add_systems(
+            FixedUpdate,
+            (advance_all_start_timers, move_particle).chain(),
+        )
         .run();
 }
 
@@ -22,10 +31,25 @@ fn advance_all_start_timers(time: Res<Time>, mut query: Query<&mut StartTimer>) 
     }
 }
 
-fn move_particle(time: Res<Time>, mut query: Query<(&mut Transform, &StartTimer)>) {
-    for (mut transform, start_timer) in &mut query {
+#[derive(Component)]
+enum Direction {
+    Up,
+    Down,
+}
+
+fn move_particle(mut query: Query<(&mut Transform, &mut Direction, &StartTimer)>) {
+    for (mut transform, mut direction, start_timer) in &mut query {
         if start_timer.0.finished() {
-            transform.translation.y += PARTICLE_SPEED * time.delta_secs();
+            match *direction {
+                Direction::Up => transform.translation.y += PARTICLE_SPEED,
+                Direction::Down => transform.translation.y -= PARTICLE_SPEED,
+            }
+
+            if transform.translation.y >= AMPLITUDE {
+                *direction = Direction::Down;
+            } else if transform.translation.y <= -AMPLITUDE {
+                *direction = Direction::Up;
+            }
         }
     }
 }
@@ -45,9 +69,10 @@ fn setup(
         commands.spawn((
             Mesh2d(circle),
             MeshMaterial2d(materials.add(color)),
+            Direction::Up,
             Transform::from_xyz(x_pos, 0.0, 0.0),
             StartTimer(Timer::from_seconds(
-                STAGGER_DELAY_SCS * id as f32,
+                PERIOD.clamp(MIN_PERIOD, 1.0) * id as f32,
                 TimerMode::Once,
             )),
         ));
