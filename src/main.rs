@@ -1,14 +1,16 @@
 use bevy::prelude::*;
 
-const FREQUENCY: f64 = 120.0;
+const FPS: f64 = 120.0;
 
-const PARTICLE_SIZE: f32 = 2.0;
-const TOTAL_PARTICLES: i32 = 360;
+const FREQUENCY: f64 = 240.0;
+const TOTAL_PARTICLES: i32 = 420;
+const PARTICLE_SIZE: f32 = 1.0;
+const X_ORIGIN: f32 = -TOTAL_PARTICLES as f32 * PARTICLE_SIZE / 2.0;
 const AMPLITUDE: f32 = 100.0;
 
 fn main() {
     App::new()
-        .insert_resource(Time::<Fixed>::from_hz(FREQUENCY))
+        .insert_resource(Time::<Fixed>::from_hz(FPS))
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
         .add_systems(
@@ -48,9 +50,7 @@ fn move_particle(time: Res<Time>, mut query: Query<(&mut Transform, &StartTimer,
     for (mut transform, start_timer, particle) in &mut query {
         if start_timer.0.finished() {
             let x = time.elapsed_secs() - particle.start_time;
-            println!("X: {}", x);
             transform.translation.y = y(x) * AMPLITUDE;
-            println!("Translation Y: {}", transform.translation.y);
             /*
             match *direction {
                 Direction::Up => transform.translation.y = x.sin(),
@@ -78,7 +78,7 @@ fn setup(
 
     for id in 0..TOTAL_PARTICLES {
         let circle = meshes.add(Rectangle::new(PARTICLE_SIZE, PARTICLE_SIZE));
-        let x_pos = PARTICLE_SIZE * id as f32;
+        let x_pos = X_ORIGIN + PARTICLE_SIZE * id as f32;
         commands.spawn((
             Mesh2d(circle),
             MeshMaterial2d(materials.add(color)),
