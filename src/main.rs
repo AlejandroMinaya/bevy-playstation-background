@@ -2,11 +2,14 @@ use bevy::prelude::*;
 
 const FPS: f64 = 120.0;
 
-const FREQUENCY: f64 = 240.0;
-const TOTAL_PARTICLES: i32 = 420;
-const PARTICLE_SIZE: f32 = 1.0;
-const X_ORIGIN: f32 = -TOTAL_PARTICLES as f32 * PARTICLE_SIZE / 2.0;
+const FREQUENCY: f32 = 1.0;
+const SPEED: f32 = 500.0;
 const AMPLITUDE: f32 = 100.0;
+
+const TOTAL_PARTICLES: i32 = 1200;
+const PARTICLE_SIZE: f32 = 1.0;
+
+const X_ORIGIN: f32 = -TOTAL_PARTICLES as f32 * PARTICLE_SIZE / 2.0;
 
 fn main() {
     App::new()
@@ -36,12 +39,6 @@ fn advance_all_start_timers(time: Res<Time>, mut query: Query<(&mut StartTimer, 
 struct Particle {
     start_time: f32,
 }
-/*
-* y = x or sin(x)
-* x = time_elapsed
-* dy = transform.translation.y
-* dx = 1/FREQUENCY
-*/
 
 fn y(x: f32) -> f32 {
     x.sin()
@@ -50,19 +47,7 @@ fn move_particle(time: Res<Time>, mut query: Query<(&mut Transform, &StartTimer,
     for (mut transform, start_timer, particle) in &mut query {
         if start_timer.0.finished() {
             let x = time.elapsed_secs() - particle.start_time;
-            transform.translation.y = y(x) * AMPLITUDE;
-            /*
-            match *direction {
-                Direction::Up => transform.translation.y = x.sin(),
-                Direction::Down => transform.translation.y = (-x).sin(),
-            }
-
-            if transform.translation.y >= AMPLITUDE {
-                *direction = Direction::Down;
-            } else if transform.translation.y <= -AMPLITUDE {
-                *direction = Direction::Up;
-            }
-            */
+            transform.translation.y = y(x * FREQUENCY) * AMPLITUDE;
         }
     }
 }
@@ -84,7 +69,7 @@ fn setup(
             MeshMaterial2d(materials.add(color)),
             Transform::from_xyz(x_pos, 0.0, 0.0),
             StartTimer(Timer::from_seconds(
-                (1_f32 / FREQUENCY as f32) * id as f32,
+                PARTICLE_SIZE / SPEED * id as f32,
                 TimerMode::Once,
             )),
             Particle::default(),
