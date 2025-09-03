@@ -1,17 +1,14 @@
 use bevy::prelude::*;
 
-const MAX_FPS: f64 = 120.0;
-const MIN_PERIOD: f32 = 1.0 / MAX_FPS as f32;
+const FREQUENCY: f64 = 120.0;
 
 const PARTICLE_SIZE: f32 = 2.0;
-const TOTAL_PARTICLES: i32 = 300;
-const FREQUENCY: f32 = 5.0;
-const PERIOD: f32 = 1.0 / FREQUENCY;
-const AMPLITUDE: f32 = 10.0;
+const TOTAL_PARTICLES: i32 = 360;
+const AMPLITUDE: f32 = 100.0;
 
 fn main() {
     App::new()
-        .insert_resource(Time::<Fixed>::from_hz(MAX_FPS))
+        .insert_resource(Time::<Fixed>::from_hz(FREQUENCY))
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
         .add_systems(
@@ -41,6 +38,7 @@ struct Particle {
 * y = x or sin(x)
 * x = time_elapsed
 * dy = transform.translation.y
+* dx = 1/FREQUENCY
 */
 
 fn y(x: f32) -> f32 {
@@ -51,7 +49,7 @@ fn move_particle(time: Res<Time>, mut query: Query<(&mut Transform, &StartTimer,
         if start_timer.0.finished() {
             let x = time.elapsed_secs() - particle.start_time;
             println!("X: {}", x);
-            transform.translation.y = y(x * FREQUENCY) * AMPLITUDE;
+            transform.translation.y = y(x) * AMPLITUDE;
             println!("Translation Y: {}", transform.translation.y);
             /*
             match *direction {
@@ -86,7 +84,7 @@ fn setup(
             MeshMaterial2d(materials.add(color)),
             Transform::from_xyz(x_pos, 0.0, 0.0),
             StartTimer(Timer::from_seconds(
-                PERIOD.clamp(MIN_PERIOD, 1.0) * id as f32,
+                (1_f32 / FREQUENCY as f32) * id as f32,
                 TimerMode::Once,
             )),
             Particle::default(),
