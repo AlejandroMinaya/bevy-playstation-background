@@ -2,11 +2,12 @@ use bevy::prelude::*;
 
 const FPS: f64 = 120.0;
 
-const FREQUENCY: f32 = 1.0;
-const SPEED: f32 = 500.0;
+const WAVELENGTH: f32 = 100.0;
+const SPEED: f32 = 200.0;
 const AMPLITUDE: f32 = 100.0;
+const FREQUENCY: f32 = SPEED / WAVELENGTH;
 
-const TOTAL_PARTICLES: i32 = 1200;
+const TOTAL_PARTICLES: i32 = 500;
 const PARTICLE_SIZE: f32 = 1.0;
 
 const X_ORIGIN: f32 = -TOTAL_PARTICLES as f32 * PARTICLE_SIZE / 2.0;
@@ -28,6 +29,10 @@ struct StartTimer(Timer);
 
 fn advance_all_start_timers(time: Res<Time>, mut query: Query<(&mut StartTimer, &mut Particle)>) {
     for (mut timer, mut particle) in &mut query {
+        if timer.0.finished() {
+            continue;
+        }
+
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             particle.start_time = time.elapsed_secs();
