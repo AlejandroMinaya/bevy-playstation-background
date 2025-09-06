@@ -116,16 +116,22 @@ fn keyboard_input_system(
     keyboard_input: ResMut<ButtonInput<KeyCode>>,
     mut wave_config: ResMut<WaveConfig>,
 ) {
-    if keyboard_input.just_released(KeyCode::ArrowUp) {
+    if keyboard_input.just_pressed(KeyCode::ArrowUp) {
         wave_config.amplitude += AMPLITUDE_STEP;
     }
-    if keyboard_input.just_released(KeyCode::ArrowDown) {
+    if keyboard_input.just_pressed(KeyCode::ArrowDown) {
         wave_config.amplitude -= AMPLITUDE_STEP;
     }
-    if keyboard_input.just_released(KeyCode::ArrowRight) {
+    if keyboard_input.just_pressed(KeyCode::ArrowRight) {
         wave_config.wavelength += WAVELENGTH_STEP;
     }
-    if keyboard_input.just_released(KeyCode::ArrowLeft) {
+    if keyboard_input.just_pressed(KeyCode::ArrowLeft) {
         wave_config.wavelength -= WAVELENGTH_STEP;
+    }
+    if keyboard_input.just_pressed(KeyCode::Period) {
+        wave_config.speed += SPEED_STEP;
+    }
+    if keyboard_input.just_pressed(KeyCode::Comma) {
+        wave_config.speed -= SPEED_STEP;
     }
 }
