@@ -6,6 +6,10 @@ const TOTAL_PARTICLES: i32 = 500;
 
 const X_ORIGIN: f32 = -TOTAL_PARTICLES as f32 / 2.0;
 
+const WAVELENGTH_STEP: f32 = 10.0;
+const SPEED_STEP: f32 = 10.0;
+const AMPLITUDE_STEP: f32 = 10.0;
+
 #[derive(Resource, Clone)]
 struct WaveConfig {
     wavelength: f32,
@@ -41,6 +45,7 @@ impl Plugin for WavePlugin {
             FixedUpdate,
             (advance_all_start_timers, move_particle).chain(),
         );
+        app.add_systems(Update, keyboard_input_system);
     }
 }
 
@@ -104,5 +109,17 @@ fn setup(
             )),
             Particle::default(),
         ));
+    }
+}
+
+fn keyboard_input_system(
+    keyboard_input: ResMut<ButtonInput<KeyCode>>,
+    mut wave_config: ResMut<WaveConfig>,
+) {
+    if keyboard_input.just_released(KeyCode::ArrowUp) {
+        wave_config.amplitude += AMPLITUDE_STEP;
+    }
+    if keyboard_input.just_released(KeyCode::ArrowDown) {
+        wave_config.amplitude -= AMPLITUDE_STEP;
     }
 }
