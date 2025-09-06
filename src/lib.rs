@@ -71,7 +71,7 @@ struct Particle {
 }
 
 fn y(x: f32) -> f32 {
-    x.sin()
+    x.sin() * (x / 2.0).cos()
 }
 fn move_particle(
     wave_config: Res<WaveConfig>,
