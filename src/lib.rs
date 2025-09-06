@@ -122,4 +122,10 @@ fn keyboard_input_system(
     if keyboard_input.just_released(KeyCode::ArrowDown) {
         wave_config.amplitude -= AMPLITUDE_STEP;
     }
+    if keyboard_input.just_released(KeyCode::ArrowRight) {
+        wave_config.wavelength += WAVELENGTH_STEP;
+    }
+    if keyboard_input.just_released(KeyCode::ArrowLeft) {
+        wave_config.wavelength -= WAVELENGTH_STEP;
+    }
 }
