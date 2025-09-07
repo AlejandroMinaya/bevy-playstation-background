@@ -15,6 +15,7 @@ struct WaveConfig {
     wavelength: f32,
     speed: f32,
     amplitude: f32,
+    height: f32,
 }
 impl WaveConfig {
     fn frequency(&self) -> f32 {
@@ -27,6 +28,7 @@ impl Default for WaveConfig {
             wavelength: 100.0,
             speed: 100.0,
             amplitude: 100.0,
+            height: 500.0,
         }
     }
 }
@@ -71,7 +73,7 @@ struct Particle {
 }
 
 fn y(x: f32) -> f32 {
-    x.sin() * (x / 2.0).cos()
+    x.sin()
 }
 fn move_particle(
     wave_config: Res<WaveConfig>,
@@ -81,7 +83,8 @@ fn move_particle(
     for (mut transform, start_timer, particle) in &mut query {
         if start_timer.0.finished() {
             let x = time.elapsed_secs() - particle.start_time;
-            transform.translation.y = y(x * wave_config.frequency()) * wave_config.amplitude;
+            transform.translation.y =
+                y(x * wave_config.frequency()) * wave_config.amplitude - wave_config.height;
         }
     }
 }
@@ -97,12 +100,12 @@ fn setup(
     commands.spawn(Camera2d);
 
     for id in 0..TOTAL_PARTICLES {
-        let circle = meshes.add(Rectangle::new(1.0, 1.0));
+        let circle = meshes.add(Rectangle::new(1.0, wave_config.height));
         let x_pos = X_ORIGIN + id as f32;
         commands.spawn((
             Mesh2d(circle),
             MeshMaterial2d(materials.add(color)),
-            Transform::from_xyz(x_pos, 0.0, 0.0),
+            Transform::from_xyz(x_pos, -wave_config.height, 0.0),
             StartTimer(Timer::from_seconds(
                 1.0 / wave_config.speed * id as f32,
                 TimerMode::Once,
