@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::prelude::*;
 
 const FPS: f64 = 120.0;
@@ -27,8 +29,8 @@ impl Default for WaveConfig {
         WaveConfig {
             wavelength: 100.0,
             speed: 100.0,
-            amplitude: 100.0,
-            height: 500.0,
+            amplitude: 50.0,
+            height: 450.0,
         }
     }
 }
@@ -73,7 +75,7 @@ struct Particle {
 }
 
 fn y(x: f32) -> f32 {
-    x.sin()
+    x.sin() * (x * PI).cos()
 }
 fn move_particle(
     wave_config: Res<WaveConfig>,
